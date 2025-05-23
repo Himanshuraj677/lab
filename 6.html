@@ -1,0 +1,57 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# ==========================
+# 1. Generate synthetic data
+# ==========================
+np.random.seed(0)
+X = np.linspace(-3, 3, 100)
+y = np.sin(X) + np.random.normal(0, 0.1, len(X))
+
+# Convert to 2D array for matrix operations
+X = X[:, np.newaxis]
+
+# ==========================
+# 2. Add bias term
+# ==========================
+def add_bias(X):
+    return np.hstack((np.ones((X.shape[0], 1)), X))
+
+# ==========================
+# 3. Locally Weighted Regression Function
+# ==========================
+def lwlr(x_test, X_train, y_train, tau=0.5):
+    m = X_train.shape[0]
+    X_train_b = add_bias(X_train)
+    x_test_b = np.array([1, x_test])  # with bias
+
+    # Compute weights for each point
+    weights = np.exp(-np.sum((X_train - x_test) ** 2, axis=1) / (2 * tau ** 2))
+    W = np.diag(weights)
+
+    # Compute theta using weighted normal equation
+    try:
+        theta = np.linalg.pinv(X_train_b.T @ W @ X_train_b) @ (X_train_b.T @ W @ y_train)
+    except np.linalg.LinAlgError:
+        theta = np.zeros(X_train_b.shape[1])
+
+    return x_test_b @ theta
+
+# ==========================
+# 4. Predict for each point
+# ==========================
+tau = 0.3  # Bandwidth
+y_pred = np.array([lwlr(x[0], X, y, tau) for x in X])
+
+# ==========================
+# 5. Plotting
+# ==========================
+plt.figure(figsize=(10, 6))
+plt.scatter(X, y, label='Training Data', alpha=0.6)
+plt.plot(X, y_pred, color='red', label=f'LWR Fit (τ={tau})', linewidth=2)
+plt.title('Locally Weighted Regression')
+plt.xlabel('X')
+plt.ylabel('y')
+plt.legend()
+plt.grid(True)
+plt.show()
