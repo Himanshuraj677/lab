@@ -1,0 +1,24 @@
+import pandas as pd
+
+# Load training data from CSV
+data = pd.read_csv("training_data.csv")
+
+# Separate attributes and target
+X = data.iloc[:, :-1].values  # All columns except last
+y = data.iloc[:, -1].values   # Last column
+
+# Initialize hypothesis with most specific values
+hypothesis = ['0'] * len(X[0])
+
+# Apply Find-S algorithm
+for i in range(len(X)):
+    if y[i].lower() == 'yes':  # Only consider positive examples
+        for j in range(len(X[i])):
+            if hypothesis[j] == '0':  # First positive example
+                hypothesis[j] = X[i][j]
+            elif hypothesis[j] != X[i][j]:  # Generalize if values differ
+                hypothesis[j] = '?'
+
+# Output the most specific hypothesis
+print("Most specific hypothesis consistent with the training examples:")
+print(hypothesis)
