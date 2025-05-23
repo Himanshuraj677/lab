@@ -1,0 +1,51 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.datasets import fetch_california_housing
+
+# Load the California Housing dataset
+california = fetch_california_housing(as_frame=True)
+df = california.frame
+
+# Display dataset information
+print("Dataset shape:", df.shape)
+print("Feature names:", df.columns.tolist())
+
+# =====================
+# 1. Histograms
+# =====================
+df.hist(bins=30, figsize=(15, 10), edgecolor='black')
+plt.suptitle("Histograms of All Numerical Features", fontsize=16)
+plt.tight_layout()
+plt.show()
+
+# =====================
+# 2. Box Plots
+# =====================
+plt.figure(figsize=(15, 10))
+for i, col in enumerate(df.columns):
+    plt.subplot(3, 3, i + 1)
+    sns.boxplot(y=df[col], color='skyblue')
+    plt.title(f'Boxplot of {col}')
+plt.tight_layout()
+plt.show()
+
+# =====================
+# 3. Outlier Detection (IQR Method)
+# =====================
+def detect_outliers_iqr(data, feature):
+    Q1 = data[feature].quantile(0.25)
+    Q3 = data[feature].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    outliers = data[(data[feature] < lower_bound) | (data[feature] > upper_bound)]
+    return outliers
+
+print("\n=== Outlier Detection Report ===")
+for col in df.columns:
+    outliers = detect_outliers_iqr(df, col)
+    print(f"\n{col} has {len(outliers)} outliers")
+    if not outliers.empty:
+        print(outliers[[col]].head())  # Show a few outliers
+
