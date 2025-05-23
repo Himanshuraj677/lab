@@ -1,0 +1,49 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.neighbors import KNeighborsClassifier
+
+# ==============================
+# 1. Generate 100 random x values in [0, 1]
+# ==============================
+np.random.seed(42)  # for reproducibility
+X = np.random.rand(100, 1)
+
+# ==============================
+# 2. Label first 50 points
+# ==============================
+y = np.zeros(100, dtype=int)
+for i in range(50):
+    y[i] = 0 if X[i] <= 0.5 else 1
+
+# Remaining 50 labels are unknown (we’ll predict them)
+y_train = y[:50]
+X_train = X[:50]
+X_test = X[50:]
+
+# ==============================
+# 3. Apply k-NN Classification (k=3)
+# ==============================
+knn = KNeighborsClassifier(n_neighbors=3)
+knn.fit(X_train, y_train)
+
+# Predict classes for the remaining 50 points
+y_pred = knn.predict(X_test)
+
+# ==============================
+# 4. Display Results
+# ==============================
+print("=== Predicted Classes for Test Data (x[50] to x[99]) ===")
+for i in range(50):
+    print(f"x[{50+i}] = {X_test[i][0]:.3f} → Class {y_pred[i]}")
+
+# Optional: visualize the classification
+plt.figure(figsize=(10, 5))
+plt.scatter(X_train[y_train == 0], [0]*sum(y_train == 0), color='blue', label='Train Class 0')
+plt.scatter(X_train[y_train == 1], [0]*sum(y_train == 1), color='red', label='Train Class 1')
+plt.scatter(X_test, [1]*50, c=y_pred, cmap='coolwarm', marker='x', label='Predicted Test')
+plt.yticks([0, 1], ['Training', 'Predicted'])
+plt.xlabel('x value')
+plt.title('k-NN Classification on Randomly Generated [0,1] Values')
+plt.legend()
+plt.grid(True)
+plt.show()
