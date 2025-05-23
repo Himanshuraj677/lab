@@ -1,0 +1,37 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.datasets import fetch_california_housing
+
+# ============================
+# 1. Load California Housing dataset
+# ============================
+california = fetch_california_housing(as_frame=True)
+df = california.frame
+
+# ============================
+# 2. Compute correlation matrix
+# ============================
+correlation_matrix = df.corr()
+
+# Display the correlation matrix
+print("\n=== Correlation Matrix ===\n")
+print(correlation_matrix)
+
+# ============================
+# 3. Visualize correlation matrix using heatmap
+# ============================
+plt.figure(figsize=(12, 8))
+sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap="coolwarm", linewidths=0.5)
+plt.title("Correlation Heatmap of California Housing Features", fontsize=16)
+plt.show()
+
+# ============================
+# 4. Pair Plot (optional: subset for performance)
+# ============================
+# Full pairplot on large data can be slow; use subset
+subset_df = df.sample(1000, random_state=42)  # Sample 1000 rows for faster plotting
+
+sns.pairplot(subset_df, diag_kind="kde", corner=True)
+plt.suptitle("Pairwise Relationships (Sample of 1000)", y=1.02)
+plt.show()
